@@ -1,17 +1,17 @@
 {
     "pos_mqrel": [
       {
-        "corpus_path": "/home/william.xion/Source-Bias/datasets/nq320k/0.2/corpus-llama-2-7b-chat.jsonl",
-        "query_path": "/home/william.xion/Source-Bias/datasets/nq320k/queries.jsonl",
-        "qrel_path": "/home/william.xion/Source-Bias/datasets/nq320k/qrels/train_30k_subset.tsv",
+        "corpus_path": "/home/Source-Bias/datasets/nq320k/0.2/corpus-llama-2-7b-chat.jsonl",
+        "query_path": "/home/Source-Bias/datasets/nq320k/queries.jsonl",
+        "qrel_path": "/home/Source-Bias/datasets/nq320k/qrels/train_30k_subset.tsv",
         "min_score": 1
       }
     ],
     "neg_mqrel": [
       {
-        "corpus_path": "/home/william.xion/Source-Bias/datasets/nq320k/0.2/corpus-llama-2-7b-chat.jsonl",
-        "query_path": "/home/william.xion/Source-Bias/datasets/nq320k/queries.jsonl",
-        "qrel_path": "/home/william.xion/pyserini/nq_hard_negatives_llama_filtered_30k.jsonl",
+        "corpus_path": "/home/Source-Bias/datasets/nq320k/0.2/corpus-llama-2-7b-chat.jsonl",
+        "query_path": "/home/Source-Bias/datasets/nq320k/queries.jsonl",
+        "qrel_path": "/home/pyserini/nq_hard_negatives_llama_filtered_30k.jsonl",
         "group_random_k": 2
       }
     ]
