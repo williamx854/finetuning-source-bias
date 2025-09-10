@@ -150,7 +150,121 @@ cp -r Perplexity_trap_experiments/ Perplexity-Trap/
 
 Run experiments following the original repo’s commands **using the modified files**.
 
+# Perplexity Experiments (Custom Modifications)
+
+This directory (`Perplexity_trap_experiments/`) extends the [Perplexity-Trap](https://github.com/WhyDwelledOnAi/Perplexity-Trap) repository with new analysis scripts and modifications for flexibility.
+
 ---
+
+## Key Scripts
+
+### 1. `check_language_modeling.py` (Modified)
+
+* **Purpose:** Computes retriever-specific per-token perplexity scores for every document in a corpus.
+* **Modification:** Fully flexible — accepts model path, dataset, and base model type as command-line arguments.
+
+**Example:**
+
+```bash
+python check_language_modeling.py \
+    --dataset scifact \
+    --base_model_type bert \
+    --model_path intfloat/e5-base \
+    --model_nickname e5-base \
+    --gpu 0
+```
+
+---
+
+### 2. `calc_rel_pos.py` (Modified)
+
+* **Purpose:** Calculates head-to-head relevance scores (human vs. LLM document) for a given query.
+* **Modification:** Flexible arguments for retriever and dataset.
+
+**Example:**
+
+```bash
+python calc_rel_pos.py --retriever e5-base --dataset scifact --gpu 0
+```
+
+---
+
+### 3. `analyze_results.py` (New)
+
+* **Purpose:** Merges outputs of the above two scripts.
+* Reads relevance scores + per-token perplexities.
+* Outputs a unified file: `analysis_[retriever].jsonl`.
+
+**Example:**
+
+```bash
+python analyze_results.py --retriever e5-base --dataset scifact
+```
+
+---
+
+### 4. `head_to_head_analyzer.py` (New)
+
+* **Purpose:** Performs the final causal analysis.
+* Groups pairs by which version (human vs. LLM) has lower perplexity.
+* Computes % of cases where retriever agrees with perplexity.
+
+**Example:**
+
+```bash
+python head_to_head_analyzer.py --retriever e5-base --dataset scifact
+```
+
+---
+
+## Experimental Workflow ⚙️
+
+To reproduce experiments for a model (e.g., `e5-base`) on a dataset (e.g., `scifact`):
+
+1. **Data Preparation:**
+
+   * Follow original Perplexity-Trap instructions.
+   * Run `preprocess_llm_ids.py`.
+   * Create `corpus/merge.jsonl`.
+
+2. **Pre-computation (parallelizable):**
+
+   * Calculate relevance scores:
+
+     ```bash
+     python calc_rel_pos.py --retriever e5-base --dataset scifact --gpu 0
+     ```
+   * Calculate perplexity scores:
+
+     ```bash
+     python check_language_modeling.py \
+         --dataset scifact \
+         --base_model_type bert \
+         --model_path intfloat/e5-base \
+         --model_nickname e5-base \
+         --gpu 0
+     ```
+
+3. **Merge Results:**
+
+   ```bash
+   python analyze_results.py --retriever e5-base --dataset scifact
+   ```
+
+4. **Final Analysis:**
+
+   ```bash
+   python head_to_head_analyzer.py --retriever e5-base --dataset scifact
+   ```
+
+---
+
+## Notes
+
+* These scripts directly extend the baseline Perplexity-Trap workflow.
+* They produce the retriever-centric perplexity and agreement statistics reported in our paper.
+* If a file already exists in the original repo with the same name, replace it with the version here.
+
 
 ## Notes
 
