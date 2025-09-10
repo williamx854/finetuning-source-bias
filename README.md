@@ -154,6 +154,5 @@ Run experiments following the original repo’s commands **using the modified fi
 
 ## Notes
 
-* We **do not** provide a unified environment. Please use the setup instructions from each upstream repository.
-* This repository is anonymized for double‑blind review and contains only **modifications and minimal glue**.
+* This repository is anonymized for review.
 * After acceptance, we will release non‑anonymous materials with proper attribution and any additional integration.
