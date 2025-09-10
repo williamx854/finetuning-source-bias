@@ -1,20 +1,18 @@
-# Anonymous Dense Retriever Bias Experiments
+# Dense Retriever Bias Experiments
 
 This repository contains the **custom scripts and configurations** used in our ECIR 2026 submission on **source bias in dense retrievers**.
 
-We **do not** bundle full third‑party code. Instead, please clone the upstream repositories listed below and copy our provided files into them.
-
 ---
 
-## 0. Minimal workflow (TL;DR)
+## 0. Minimal Workflow
 
-1. **Clone** the target upstream repo (Source‑Bias / SyCL / Perplexity‑Trap).
+1. **Clone** the target upstream repo (Source-Bias / SyCL / Perplexity-Trap).
 2. **Copy** our files into the indicated paths (overwrite if names match).
 3. **Run** the example commands below.
 
 ---
 
-## 1. Source‑Bias evaluation (human vs LLM)
+## 1. Source-Bias Evaluation (Human vs LLM)
 
 Clone the official repository:
 
@@ -29,7 +27,7 @@ Copy our custom script into the evaluation folder:
 cp source_bias_custom/evaluate_custom.py Source-Bias/evaluate/
 ```
 
-### Example: Evaluate **E5** on **SciFact**
+### Example: Evaluate E5 on SciFact
 
 ```bash
 # Test on human-written corpus
@@ -53,7 +51,7 @@ python evaluate/evaluate_custom.py \
 
 ---
 
-## 2. Fine‑tuning & training (SyCL)
+## 2. Fine-tuning & Training (SyCL)
 
 Clone the official repository:
 
@@ -61,15 +59,19 @@ Clone the official repository:
 git clone https://github.com/BatsResearch/sycl
 ```
 
-Copy our data config(s) into SyCL:
+Copy our data configs into SyCL and move the provided **30k NQ320K subset qrels file** into the correct directory:
 
 ```bash
 # from THIS repo's root
 cp sycl_configs/nq320k_30k_binary.json sycl/data_configs/
-cp sycl_configs/real_binary.json        sycl/data_configs/
+cp sycl_configs/nq320k_30k_synthetic_binary.json sycl/data_configs/
+cp sycl_configs/real_binary_scifact.json sycl/data_configs/
+cp sycl_configs/scifact_synthetic_binary.json sycl/data_configs/
 ```
 
-### Example A: Fine‑tune **E5** on **NQ320K** (30k pairs, InfoNCE)
+> **Note:** These configs reference the subset qrels file, so make sure it is placed inside `sycl/data_configs/` before running training.
+
+### Example A: Fine-tune E5 on NQ320K (30k pairs, InfoNCE)
 
 ```bash
 # run from the sycl repo root
@@ -100,7 +102,7 @@ deepspeed --include localhost:0,1,2,3 train.py \
     --save_only_model='true'
 ```
 
-### Example B: Fine‑tune **E5** on **MS MARCO** (1 epoch, InfoNCE)
+### Example B: Fine-tune E5 on MS MARCO (1 epoch, InfoNCE)
 
 ```bash
 # run from the sycl repo root
@@ -133,7 +135,7 @@ deepspeed --include localhost:0,1,2,3 train.py \
 
 ---
 
-## 3. Perplexity experiments (Perplexity‑Trap)
+## 3. Perplexity Experiments (Perplexity-Trap)
 
 Clone the official repository:
 
@@ -148,22 +150,15 @@ Copy our modified experiment folder into the cloned repo and overwrite if prompt
 cp -r Perplexity_trap_experiments/ Perplexity-Trap/
 ```
 
-Run experiments following the original repo’s commands **using the modified files**.
-
-# Perplexity Experiments (Custom Modifications)
-
 This directory (`Perplexity_trap_experiments/`) extends the [Perplexity-Trap](https://github.com/WhyDwelledOnAi/Perplexity-Trap) repository with new analysis scripts and modifications for flexibility.
 
----
+### Key Scripts
 
-## Key Scripts
+#### 1. `check_language_modeling.py` (Modified)
 
-### 1. `check_language_modeling.py` (Modified)
+**Purpose:** Computes retriever-specific per-token perplexity scores for every document in a corpus.
 
-* **Purpose:** Computes retriever-specific per-token perplexity scores for every document in a corpus.
-* **Modification:** Fully flexible — accepts model path, dataset, and base model type as command-line arguments.
-
-**Example:**
+**Modification:** Fully flexible — accepts model path, dataset, and base model type as command-line arguments.
 
 ```bash
 python check_language_modeling.py \
@@ -174,99 +169,81 @@ python check_language_modeling.py \
     --gpu 0
 ```
 
----
+#### 2. `calc_rel_pos.py` (Modified)
 
-### 2. `calc_rel_pos.py` (Modified)
+**Purpose:** Calculates head-to-head relevance scores (human vs. LLM document) for a given query.
 
-* **Purpose:** Calculates head-to-head relevance scores (human vs. LLM document) for a given query.
-* **Modification:** Flexible arguments for retriever and dataset.
-
-**Example:**
+**Modification:** Flexible arguments for retriever and dataset.
 
 ```bash
 python calc_rel_pos.py --retriever e5-base --dataset scifact --gpu 0
 ```
 
----
+#### 3. `analyze_results.py` (New)
 
-### 3. `analyze_results.py` (New)
+**Purpose:** Merges outputs of the above two scripts.
 
-* **Purpose:** Merges outputs of the above two scripts.
-* Reads relevance scores + per-token perplexities.
-* Outputs a unified file: `analysis_[retriever].jsonl`.
-
-**Example:**
+- Reads relevance scores + per-token perplexities
+- Outputs a unified file: `analysis_[retriever].jsonl`
 
 ```bash
 python analyze_results.py --retriever e5-base --dataset scifact
 ```
 
----
+#### 4. `head_to_head_analyzer.py` (New)
 
-### 4. `head_to_head_analyzer.py` (New)
+**Purpose:** Performs the final causal analysis.
 
-* **Purpose:** Performs the final causal analysis.
-* Groups pairs by which version (human vs. LLM) has lower perplexity.
-* Computes % of cases where retriever agrees with perplexity.
-
-**Example:**
+- Groups pairs by which version (human vs. LLM) has lower perplexity
+- Computes % of cases where retriever agrees with perplexity
 
 ```bash
 python head_to_head_analyzer.py --retriever e5-base --dataset scifact
 ```
 
----
-
-## Experimental Workflow ⚙️
+### Experimental Workflow
 
 To reproduce experiments for a model (e.g., `e5-base`) on a dataset (e.g., `scifact`):
 
-1. **Data Preparation:**
+#### 1. Data Preparation
 
-   * Follow original Perplexity-Trap instructions.
-   * Run `preprocess_llm_ids.py`.
-   * Create `corpus/merge.jsonl`.
+- Follow original Perplexity-Trap instructions
+- Run `preprocess_llm_ids.py`
+- Create `corpus/merge.jsonl`
 
-2. **Pre-computation (parallelizable):**
+#### 2. Pre-computation 
 
-   * Calculate relevance scores:
+Calculate relevance scores:
 
-     ```bash
-     python calc_rel_pos.py --retriever e5-base --dataset scifact --gpu 0
-     ```
-   * Calculate perplexity scores:
+```bash
+python calc_rel_pos.py --retriever e5-base --dataset scifact --gpu 0
+```
 
-     ```bash
-     python check_language_modeling.py \
-         --dataset scifact \
-         --base_model_type bert \
-         --model_path intfloat/e5-base \
-         --model_nickname e5-base \
-         --gpu 0
-     ```
+Calculate perplexity scores:
 
-3. **Merge Results:**
+```bash
+python check_language_modeling.py \
+    --dataset scifact \
+    --base_model_type bert \
+    --model_path intfloat/e5-base \
+    --model_nickname e5-base \
+    --gpu 0
+```
 
-   ```bash
-   python analyze_results.py --retriever e5-base --dataset scifact
-   ```
+#### 3. Merge Results
 
-4. **Final Analysis:**
+```bash
+python analyze_results.py --retriever e5-base --dataset scifact
+```
 
-   ```bash
-   python head_to_head_analyzer.py --retriever e5-base --dataset scifact
-   ```
+#### 4. Final Analysis
 
+```bash
+python head_to_head_analyzer.py --retriever e5-base --dataset scifact
+```
 ---
 
 ## Notes
 
-* These scripts directly extend the baseline Perplexity-Trap workflow.
-* They produce the retriever-centric perplexity and agreement statistics reported in our paper.
-* If a file already exists in the original repo with the same name, replace it with the version here.
-
-
-## Notes
-
-* This repository is anonymized for review.
-* After acceptance, we will release non‑anonymous materials with proper attribution and any additional integration.
+- This repository is anonymized for review
+- After acceptance, we will release non-anonymous materials with proper attribution and any additional integration
