@@ -11,7 +11,7 @@
     {
       "corpus_path": "hf://datasets/mteb/scifact@d56462d0e63a25450459c4f213e49ffdb866f7f9/corpus.jsonl",
       "query_path": "hf://datasets/mteb/scifact@d56462d0e63a25450459c4f213e49ffdb866f7f9/queries.jsonl",
-      "qrel_path": "/home/william.xion/pyserini/scifact_hard_negatives_filtered.jsonl",
+      "qrel_path": "/home/pyserini/scifact_hard_negatives_filtered.jsonl",
       "group_random_k": 2
     }
   ]
