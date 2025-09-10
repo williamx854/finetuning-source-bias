@@ -1,0 +1,18 @@
+{
+    "pos_mqrel": [
+      {
+        "corpus_path": "/home/william.xion/Source-Bias/datasets/scifact/0.2/corpus-llama-2-7b-chat.jsonl",
+        "query_path": "/home/william.xion/Source-Bias/datasets/scifact/queries.jsonl",
+        "qrel_path": "hf://datasets/mteb/scifact@d56462d0e63a25450459c4f213e49ffdb866f7f9/qrels/train.tsv",
+        "min_score": 1
+      }
+    ],
+    "neg_mqrel": [
+      {
+        "corpus_path": "/home/william.xion/Source-Bias/datasets/scifact/0.2/corpus-llama-2-7b-chat.jsonl",
+        "query_path": "/home/william.xion/Source-Bias/datasets/scifact/queries.jsonl",
+        "qrel_path": "/home/william.xion/pyserini/scifact_hard_negatives_llama.jsonl",
+        "group_random_k": 2
+      }
+    ]
+  }
